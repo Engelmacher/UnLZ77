@@ -1,0 +1,47 @@
+<!doctype html public "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><title>Javascript LZ77-Unpacker</title>
+<style type="text/css"><!--
+fieldset { height:94%; }
+textarea { height:96%; width:100%; }
+--></style>
+<script type="text/javascript" language="javascript" src="unlz77.js"></script>
+<script type="text/javascript" language="javascript"><!--
+function unpack(a,b,c,d,e,f,g) {
+ if(a && data.value) {
+  if(!typeof decrunchData == "function" || !(c = decrunchData(data.value))) {
+   for(a = 0, b = [
+    /^\s*eval(?=\()|eval(?=\([(\w)]+\);?\s*$)|document\.write(?=\([(\w)]+\);?\s*$)/i,"return",
+    /document\.write\(("|')<(script)[^>]*>\1\+([\s\S]+)\+\1<\\?\/\2>\1\);?\s*$/i,"return $3",
+    /^\s*<(script)[^>]*>([\s\S]*?)(eval|document\.write)(\([\s\S]+\));?<\/\1>\s*$/i,"$2return $4"]; a < b.length; a += 2)
+    if(b[a].exec(data.value) && confirm("Execute Decrunch-Header?"))
+     c = new Function(data.value.replace(b[a],b[a + 1]))();
+   if(!c)
+    alert("Unknown data!");
+  }
+  if(c)
+   data.value = c;
+ }
+ if(f = data.value) {
+  if(!(e = window.crcTbl)) {
+   for(e = [], a = 0; a < 256; a++)
+    for(e[a] = a, b = 0; b < 8; b++)
+     e[a] = e[a] >>> 1 ^ (e[a] & 1) * 0xEDB88320;
+  }
+  for(b = -1, a = 0; a < f.length; a++)
+   for(d = f.charCodeAt(a) > 127 ? unescape(encodeURIComponent(f[a])) : f[a], c = 0; c < d.length; b = b >>> 8 ^ e[(b ^ d.charCodeAt(c++)) & 255]);
+  g = ("Size: " + data.value.length).replace(/(\d)(?=(\d{3})+(\D|$))/g,"$1.") + " / CRC32: "
+   + ("0000000" + (b < 0 ? ~b : 0xFFFFFFFF + ~ --b).toString(16).toUpperCase()).substr(-8);
+ }
+ document.getElementById("crc").innerHTML = g || "";
+ data.focus();
+}
+//--></script>
+</head><body>
+<fieldset>
+<legend><b>Javascript LZ77-Unpacker</b> <small>(&copy; by <a href="http://mengelke.de/.ha" target="_blank">Michael Engelke</a>)</small></legend>
+<button onclick="unpack(this)">Unpack</button>
+<button type="reset" onclick="data.value='';unpack()">Reset</button>
+<span id="crc"></span>
+<textarea id="data" name="data" onchange="unpack()"></textarea>
+</fieldset>
+</body></html>
